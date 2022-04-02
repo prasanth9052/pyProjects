@@ -36,11 +36,12 @@ def wait_for_image_available(image_ids, source_region):
     waiter.wait(ImageIds=image_ids)
 
 def copy_images(image_ids, source_region, destination_region):
+
     for image_id in image_ids:
         response = ec2(destination_region).copy_image(Name='Boto3-copy'+image_id,
                                            SourceImageId= image_id,
                                            SourceRegion= source_region)
-        return response
+        print('Image id {} after copied in {} region'.format(response['ImageId'], destination_region))
 
 
 if __name__ == '__main__':
@@ -67,6 +68,8 @@ if __name__ == '__main__':
 
     backup_image_ids = ami_backup(instance_list, source_region) # Create AMI's of the instances
     print("Images to be copied:", backup_image_ids)
-    wait_for_image_available(image_ids, source_region) # Wait for images to be available
-    copy_images(image_ids, source_region, destination_region) # Copy images to destination region
-    print("Images copied to {}".format(destination_region))
+    print("Waiting for images to be available")
+    wait_for_image_available(backup_image_ids, source_region) # Wait for images to be available
+    copy_images(backup_image_ids, source_region, destination_region) # Copy images to destination region
+    print("All Images copied to {}".format(destination_region))
+
